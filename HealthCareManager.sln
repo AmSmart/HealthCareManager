@@ -9,12 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCareManager.Client", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCareManager.Shared", "HealthCareManager\Shared\HealthCareManager.Shared.csproj", "{6353F53F-4AFC-407B-B8C9-9B650CB5EE22}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorApp1.Server", "BlazorApp1\Server\BlazorApp1.Server.csproj", "{F9AA4499-C2BF-4A07-9588-62B845277026}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorApp1.Client", "BlazorApp1\Client\BlazorApp1.Client.csproj", "{81BE853E-C5A2-41A6-8C90-18DE6D162928}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorApp1.Shared", "BlazorApp1\Shared\BlazorApp1.Shared.csproj", "{E0D23ACB-A98F-49AE-8C38-4976E7F53A2E}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,18 +27,6 @@ Global
 		{6353F53F-4AFC-407B-B8C9-9B650CB5EE22}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6353F53F-4AFC-407B-B8C9-9B650CB5EE22}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6353F53F-4AFC-407B-B8C9-9B650CB5EE22}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F9AA4499-C2BF-4A07-9588-62B845277026}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F9AA4499-C2BF-4A07-9588-62B845277026}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F9AA4499-C2BF-4A07-9588-62B845277026}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F9AA4499-C2BF-4A07-9588-62B845277026}.Release|Any CPU.Build.0 = Release|Any CPU
-		{81BE853E-C5A2-41A6-8C90-18DE6D162928}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{81BE853E-C5A2-41A6-8C90-18DE6D162928}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{81BE853E-C5A2-41A6-8C90-18DE6D162928}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{81BE853E-C5A2-41A6-8C90-18DE6D162928}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E0D23ACB-A98F-49AE-8C38-4976E7F53A2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E0D23ACB-A98F-49AE-8C38-4976E7F53A2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E0D23ACB-A98F-49AE-8C38-4976E7F53A2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E0D23ACB-A98F-49AE-8C38-4976E7F53A2E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
