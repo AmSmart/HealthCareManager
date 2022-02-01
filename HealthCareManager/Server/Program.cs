@@ -42,6 +42,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
+int callCount = 0;
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -73,10 +74,12 @@ app.MapFallbackToFile("index.html");
 
 app.MapGet("/api/patient/{rfid}", (string rfid, [FromQuery] string token) =>
 {
-    if (token == "access_token_12345" && rfid is "7A667680" or "E3C6712")
-        return $"#Success: ID={new Random().Next(1, 3)}*";
+    //if (token == "access_token_12345" && rfid is "7A667680" or "E3C6712")
+    //    return $"#Success: ID={new Random().Next(1, 3)}*";
 
-    return "#No Patient Found*";
+    //return "#No Patient Found*";
+    callCount++;
+    return $"#{callCount}*";
 });
 
 app.Run();
