@@ -33,6 +33,8 @@ namespace HealthCareManager.Client.Authentication
                 : new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt");
 
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            //_httpClient.DefaultRequestHeaders.Remove("Authorization");
+            //_httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
             return new AuthenticationState(new ClaimsPrincipal(identity));
 
         }
