@@ -1,5 +1,6 @@
 ﻿@page "/login"
 @using HealthCareManager.Client.Authentication
+@using Refit
 @inject IServerApi ServerApi;
 @inject ILocalStorageService LocalStorage;
 @inject ISnackbar Snackbar;
@@ -13,12 +14,14 @@
     <br />
     <MudText Typo="Typo.h5">Sign In</MudText>
 
-    <EditForm Model="@Dto" OnSubmit="TryLogin">
-        <MudTextField @bind-Value="@Dto.UserName" InputType="InputType.Text" class="field" Label="UserName" Margin="Margin.Dense" Variant="Variant.Outlined" />
-        <MudTextField @bind-Value="@Dto.Password" InputType="InputType.Password" class="field" Label="Password" Margin="Margin.Dense" Variant="Variant.Outlined" />
+    <EditForm Model="@Dto" OnValidSubmit="TryLogin">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <MudTextField @bind-Value="@Dto.UserName" InputType="InputType.Text" Label="UserName" Margin="Margin.Dense" Variant="Variant.Outlined" />
+        <MudTextField @bind-Value="@Dto.Password" InputType="InputType.Password" Label="Password" Margin="Margin.Dense" Variant="Variant.Outlined" />
 
         <div class="form-button">
-            <LoadingButton Loading="_isLoading" OnClick="TryLogin"  LoadingText="Loading">Login</LoadingButton>
+            <LoadingButton IsSubmitType="true" Loading="_isLoading" LoadingText="Loading">Login</LoadingButton>
         </div>
     </EditForm>
 
@@ -32,20 +35,24 @@
 
     public LoginDTO Dto = new();
 
-    public async Task TryLogin() 
+    public async Task TryLogin()
     {
         _isLoading = true;
-        var response = await ServerApi.LoginAsync(Dto);
 
-        if (!response.IsSuccessStatusCode)
+        try
         {
-            Snackbar.Add(response.Content?.Message, Severity.Error);
-            _isLoading = false;
-            return;
+            var response = await ServerApi.LoginAsync(Dto);
+            await AuthStateProvider.SetTokenAsync(response.Data.AccessToken, response.Data.Expiry);
+            Naviagtion.NavigateTo(AppRoutes.Index);
         }
-
-        await AuthStateProvider.SetTokenAsync(response.Content?.Data?.AccessToken, DateTime.Now.AddMinutes(60));
-        Naviagtion.NavigateTo(AppRoutes.Index);
-        _isLoading = false;
+        catch (ApiException ex)
+        {
+            var response = await ex.GetContentAsAsync<AppResponse>();
+            Snackbar.Add(response.Message, Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
     }
 }

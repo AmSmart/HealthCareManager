@@ -12,18 +12,18 @@ namespace HealthCareManager.Client
     public interface IServerApi
     {
         [Post("/api/login")]
-        Task<ApiResponse<AppResponse<JwtToken>>> LoginAsync([Body] LoginDTO dto);
+        Task<AppResponse<JwtToken>> LoginAsync([Body] LoginDTO dto);
         
         [Post("/api/user")]
-        Task<ApiResponse<AppResponse>> RegisterUserAsync();
+        Task<AppResponse> RegisterUserAsync(CreateUserDTO dto);
 
-        [Get("/api/patient/{rfid}")]
-        Task<ApiResponse<AppResponse<Patient>>> GetPatientAsync(string rfid);
+        [Get("/api/patient-data/{rfid}")]
+        Task<AppResponse<Patient>> GetPatientAsync(string rfid);
 
         [Post("/api/patient")]
-        Task<ApiResponse<AppResponse>> AddPatientAsync([Body] CreatePatientDTO request);
+        Task<AppResponse> AddPatientAsync([Body] CreatePatientDTO request);
 
         [Put("/patient/{patientId}/prescription/{prescriptionId}")]
-        Task<ApiResponse<AppResponse<string>>> IncrementCollectedPrescriptionCountAsync(int patientId, int prescriptionId);
+        Task<AppResponse<string>> IncrementCollectedPrescriptionCountAsync(int patientId, int prescriptionId);
     }
 }

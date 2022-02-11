@@ -59,7 +59,7 @@ namespace HealthCareManager.Client.Authentication
 
             if (expiry != default)
             {
-                if (DateTime.Parse(expiry.ToString()) > DateTime.Now)
+                if (DateTime.Parse(expiry.ToString()) > DateTime.UtcNow)
                 {
                     return await _localStorage.GetItemAsStringAsync("authToken");
                 }

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -56,6 +57,7 @@ builder.Services.AddAuthentication();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddSignalR();
 
 builder.Services.AddTransient<UserService>();
 
@@ -87,17 +89,20 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 app.MapControllers();
+app.MapHub<NotificationHub>("/notify");
 app.MapFallbackToFile("index.html");
 
-app.MapGet("/api/patient/{rfid}", (string rfid, [FromQuery] string token) =>
+app.MapGet("/api/patient/{rfid}", (IHubContext<NotificationHub> notifier, string rfid, [FromQuery] string token) =>
 {
     if (token != "access_token_12345")
         return "#Authorization Error*";
 
-    if(rfid is not "7A667680" or "E3C6712")
-        return "#No Patient Found*";
+    notifier.Clients.All.SendAsync("id", rfid);
 
-    return $"#Success: ID={new Random().Next(1, 3)}*";
+    //if(rfid is not "7A667680" or "E3C6712")
+    //    return "#No Patient Found*";
+
+    return $"#Success: ID={rfid}*";
 });
 
 app.Run();

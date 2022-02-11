@@ -26,18 +26,14 @@ namespace HealthCareManager.Server
             if (dto.Password != dto.ConfirmPassword)
                 throw new Exception("Password and Confirm Passwprd do not match");
 
-            var userType = Enum.Parse(typeof(UserType), dto.UserType);
-            if (userType is null)
-                throw new Exception("Invalid User Type");
-
-            if ((UserType)userType == UserType.Admin)
+            if (dto.UserType is UserType.Admin)
                 throw new Exception("Cannot create admin user");
 
             var user = new ApplicationUser
             {
                 UserName = dto.UserName,
                 FullName = dto.FullName,
-                UserType = (UserType)userType
+                UserType = dto.UserType
             };
 
             var result = await _userManager.CreateAsync(user, dto.Password);
@@ -63,7 +59,8 @@ namespace HealthCareManager.Server
                     SecurityAlgorithms.HmacSha256Signature));
             var accessToken = new JwtSecurityTokenHandler().WriteToken(jwtToken);
 
-            return new JwtToken(accessToken);
+            var expiry = now.AddMinutes(60);
+            return new JwtToken(accessToken, expiry);
         }
 
     }

@@ -1,11 +1,27 @@
-﻿@page "/dashbaord/admin"
+﻿@page "/dashboard/admin"
 @using Microsoft.AspNetCore.Authorization
+@inject IDialogService DialogService;
 @attribute [Authorize]
 
 <PageTitle>Admin's Dashboard</PageTitle>
 
-<h1>Admin's' Dashboard</h1>
+<div class="container">
+    <MudText Typo="Typo.h5">Welcome to Admin's' Dashboard</MudText>
+    <MudText Typo="Typo.subtitle2">Hi @(name), Here's what you can do</MudText>
+
+    <div class="buttons">
+        <MudButton Variant="Variant.Outlined" OnClick="@AddUser">Add New User</MudButton>
+        <MudButton Variant="Variant.Outlined" OnClick="@AddPatient">Add New Patient</MudButton>
+    </div>
+    
+</div>
 
 @code{
+    string name = "Test Name";
 
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    void AddUser() => DialogService.Show<AddUserDialog>();
+
+    void AddPatient() => DialogService.Show<AddPatientDialog>();
 }

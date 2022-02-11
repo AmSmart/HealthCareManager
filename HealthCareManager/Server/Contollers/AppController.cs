@@ -84,7 +84,7 @@ namespace HealthCareManager.Server.Contollers
             }
         }
 
-        [HttpGet("patient/{rfid}")]
+        [HttpGet("patient-data/{rfid}")]
         public async Task<IActionResult> GetPatient(string rfid)
         {
             string userTypetring = User.FindFirstValue(nameof(UserType));

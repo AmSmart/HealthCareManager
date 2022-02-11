@@ -1,0 +1,16 @@
+﻿.container{
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	margin-top: 5px;
+}
+
+.buttons{
+	display:flex;
+	flex-direction: row;
+	margin-top: 2px;
+	justify-content: center;
+	align-items: center;
+	margin-right: 1px;
+}

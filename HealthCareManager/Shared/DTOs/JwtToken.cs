@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace HealthCareManager.Shared.DTOs
 {
-    public record JwtToken(string AccessToken);
+    public record JwtToken(string AccessToken, DateTime Expiry);
 }

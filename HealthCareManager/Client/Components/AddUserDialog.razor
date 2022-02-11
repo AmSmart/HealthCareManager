@@ -1,0 +1,73 @@
+﻿@using Refit
+@inject IServerApi ServerApi;
+@inject ISnackbar Snackbar;
+
+<EditForm Model="@Dto" OnValidSubmit="@RegisterUser">
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1" />
+                Add New User?
+            </MudText>
+        </TitleContent>
+        <DialogContent>
+            <div class="d-flex flex-column py-1">
+                <DataAnnotationsValidator />
+                @*<ValidationSummary />*@
+
+                <MudTextField Label="User Name" InputType="InputType.Text" @bind-Value="@Dto.UserName"
+                              Margin="Margin.Dense" Variant="Variant.Outlined" />
+                              
+                <MudTextField Label="Full Name" InputType="InputType.Text" @bind-Value="@Dto.FullName"
+                              Margin="Margin.Dense" Variant="Variant.Outlined" />
+
+                <MudTextField @bind-Value="@Dto.Password" InputType="InputType.Password"
+                              Label="Password" Margin="Margin.Dense" Variant="Variant.Outlined" />
+
+                <MudTextField @bind-Value="@Dto.ConfirmPassword" InputType="InputType.Password"
+                              Label="Confirm Password" Margin="Margin.Dense" Variant="Variant.Outlined" />
+
+                <MudSelect @bind-Value="@Dto.UserType" T="@UserType" Margin="Margin.Dense" Label="User Type" AnchorOrigin="Origin.BottomCenter">
+                    <MudSelectItem Value="UserType.Doctor" />
+                    <MudSelectItem Value="UserType.Pharmacist" />
+                </MudSelect>
+            </div>
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="@Close">Cancel</MudButton>
+            <LoadingButton IsSubmitType="true" Loading="@_isLoading" LoadingText="Loading">
+                Register
+            </LoadingButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+
+@code {
+    bool _isLoading;
+
+    public CreateUserDTO Dto { get; set; } = new();
+
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    void Close() => MudDialog.Close(DialogResult.Ok(true));
+
+    public async Task RegisterUser()
+    {
+        _isLoading = true;
+        try
+        {
+            var response = await ServerApi.RegisterUserAsync(Dto);
+            Snackbar.Add(response.Message, Severity.Success);
+            Dto = new();
+        }
+        catch (ApiException ex)
+        {
+            var response = await ex.GetContentAsAsync<AppResponse>();
+            Snackbar.Add(response.Message, Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+}

@@ -1,0 +1,105 @@
+﻿@using Refit
+@using Microsoft.AspNetCore.SignalR.Client
+@using System.IO
+@implements IAsyncDisposable;
+@inject IServerApi ServerApi;
+@inject ISnackbar Snackbar;
+@inject NavigationManager Navigation;
+
+
+<EditForm Model="@Dto" OnValidSubmit="@RegisterPatient">
+    <MudDialog Class="custom-modal">
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1" />
+                Add New Patient?
+            </MudText>
+        </TitleContent>
+        <DialogContent>
+            <div class="d-flex flex-column py-1">
+                <DataAnnotationsValidator />
+                @*<ValidationSummary />*@
+                <MudTextField Label="RFID" InputType="InputType.Text" @bind-Value="@Dto.RfidTagId"
+                              Margin="Margin.Dense" Variant="Variant.Outlined" HelperText="Swipe RFID Tag" />
+                              
+                <MudTextField Label="Full Name" InputType="InputType.Text" @bind-Value="@Dto.FullName"
+                              Margin="Margin.Dense" Variant="Variant.Outlined" />                                             
+
+                <MudSelect @bind-Value="@Dto.Gender" T="@string" Label="Gender" AnchorOrigin="Origin.BottomCenter">
+                    <MudSelectItem Value="@("Male")" />
+                    <MudSelectItem Value="@("Female")" />
+                </MudSelect>
+                              
+                <MudTextField Label="Other Information" InputType="InputType.Text" @bind-Value="@Dto.OtherInformation"
+                              Margin="Margin.Dense" Variant="Variant.Outlined" Lines="5" />                    
+            </div
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="@Close">Cancel</MudButton>
+            <LoadingButton IsSubmitType="true" Loading="_isLoading" LoadingText="Loading">
+                Register
+            </LoadingButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+
+@code {
+    bool _isLoading;
+    HubConnection _connection = null;
+
+    public CreatePatientDTO Dto { get; set; } = new();
+
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    void Close() => MudDialog.Close(DialogResult.Ok(true));
+
+    public async Task RegisterPatient()
+    {
+        _isLoading = true;
+        try
+        {
+            var response = await ServerApi.AddPatientAsync(Dto);
+            Snackbar.Add(response.Message, Severity.Success);
+        }
+        catch(ApiException ex)
+        {
+            var response = await ex.GetContentAsAsync<AppResponse>();
+            Snackbar.Add(response.Message, Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task ConnectToServer()
+    {
+        string url = $"{Navigation.BaseUri}notify";
+        _connection = new HubConnectionBuilder()
+            .WithUrl(url)
+            .Build();
+
+        _connection.Closed += async (s) =>
+        {
+            await _connection.StartAsync();            
+        };
+
+        _connection.On<string>("id", async (id) =>
+        {
+            Dto.RfidTagId = id;
+            StateHasChanged();
+        });
+
+        await _connection.StartAsync();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ConnectToServer();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await _connection.DisposeAsync();
+    }
+}
