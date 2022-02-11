@@ -1,0 +1,26 @@
+﻿<MudButton Disabled="Loading" OnClick="OnClick" Variant="Variant.Filled" Color="Color.Primary">
+    @if (Loading)
+    {
+        <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+        <MudText Class="ms-2">@LoadingText</MudText>
+    }
+    else
+    {
+        <MudText>@ChildContent</MudText>
+    }
+</MudButton>
+
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; } = default!;
+    
+    [Parameter]
+    public string LoadingText { get; set; } = default!;
+
+    [Parameter]
+    public bool Loading { get; set; }
+
+    [Parameter]
+    public EventCallback OnClick { get;  set; }
+}

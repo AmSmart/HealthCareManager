@@ -1,0 +1,51 @@
+﻿@page "/login"
+@using HealthCareManager.Client.Authentication
+@inject IServerApi ServerApi;
+@inject ILocalStorageService LocalStorage;
+@inject ISnackbar Snackbar;
+@inject NavigationManager Naviagtion;
+@inject JwtAuthStateProvider AuthStateProvider;
+
+<PageTitle>Login</PageTitle>
+
+<div class="@(DarkMode ? "container" : "container light-bg")">
+    <MudText Typo="Typo.h6">Welcome to HealthCareManager</MudText>
+    <br />
+    <MudText Typo="Typo.h5">Sign In</MudText>
+
+    <EditForm Model="@Dto" OnSubmit="TryLogin">
+        <MudTextField @bind-Value="@Dto.UserName" InputType="InputType.Text" class="field" Label="UserName" Margin="Margin.Dense" Variant="Variant.Outlined" />
+        <MudTextField @bind-Value="@Dto.Password" InputType="InputType.Password" class="field" Label="Password" Margin="Margin.Dense" Variant="Variant.Outlined" />
+
+        <div class="form-button">
+            <LoadingButton Loading="_isLoading" OnClick="TryLogin"  LoadingText="Loading">Login</LoadingButton>
+        </div>
+    </EditForm>
+
+</div>
+
+@code {
+    bool _isLoading;
+
+    [CascadingParameter(Name = "IsDarkMode")]
+    public bool DarkMode { get; set; }
+
+    public LoginDTO Dto = new();
+
+    public async Task TryLogin() 
+    {
+        _isLoading = true;
+        var response = await ServerApi.LoginAsync(Dto);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            Snackbar.Add(response.Content?.Message, Severity.Error);
+            _isLoading = false;
+            return;
+        }
+
+        await AuthStateProvider.SetTokenAsync(response.Content?.Data?.AccessToken, DateTime.Now.AddMinutes(60));
+        Naviagtion.NavigateTo(AppRoutes.Index);
+        _isLoading = false;
+    }
+}

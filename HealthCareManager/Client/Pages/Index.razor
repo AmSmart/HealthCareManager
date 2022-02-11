@@ -1,9 +1,45 @@
 ﻿@page "/"
+@using HealthCareManager.Shared.Models
+@using System.Security.Claims;
+@inject NavigationManager Navigation
 
-<PageTitle>Index</PageTitle>
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthenticationState { get; set; } = default!;
 
-<h1>Hello, world!</h1>
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
 
-Welcome to your new app.
+        var authState = await AuthenticationState;
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+        if (!authState.User.Identity?.IsAuthenticated ?? false)
+        {
+            Navigation.NavigateTo(AppRoutes.Login);
+        }
+        else
+        {
+            switch (GetUserType(authState))
+            {
+                case UserType.Admin:
+                    Navigation.NavigateTo(AppRoutes.AdminDashboard);
+                    break;
+
+                case UserType.Doctor:
+                    Navigation.NavigateTo(AppRoutes.DoctorDashboard);
+                    break;
+
+                case UserType.Pharmacist:
+                    Navigation.NavigateTo(AppRoutes.PharmacistDashboard);
+                    break;
+            }
+        }
+    }
+
+    private UserType GetUserType(AuthenticationState authState)
+    {
+        string userTypeString = authState.User.FindFirstValue(nameof(UserType));
+        UserType userType = (UserType)Enum.Parse(typeof(UserType), userTypeString);
+        return userType;
+    }
+}

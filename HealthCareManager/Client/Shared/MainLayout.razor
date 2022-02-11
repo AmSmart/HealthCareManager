@@ -1,18 +1,39 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<MudThemeProvider @ref="_mudThemeProvider" @bind-IsDarkMode="_isDarkMode"/>
+<MudDialogProvider/>
+<MudSnackbarProvider/>
 
-    <main>
-        <div class="top-row px-4 auth">
-            <LoginDisplay />
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-        </div>
+<CascadingValue Name="IsDarkMode" Value="@_isDarkMode">
+    <MudLayout Style="height: 100%">
+    <MudAppBar Elevation="1">
+        <MudText Typo="Typo.h5" Class="ml-3">HealthCareManager</MudText>
+        <MudSpacer />
+        <MudIconButton Icon="@(_isDarkMode ? @Icons.Filled.ModeNight : Icons.Filled.WbSunny)" OnClick="ToggleDarkMode" Color="Color.Inherit" Edge="Edge.End" />
+    </MudAppBar>
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</MudLayout>
+</CascadingValue>
 
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+@code{
+    bool _isDarkMode;
+
+    MudThemeProvider _mudThemeProvider = default!;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _isDarkMode = await _mudThemeProvider.GetSystemPreference();
+            _mudThemeProvider.Theme.Palette.AppbarBackground = "#7E6FFF";
+            StateHasChanged();
+        }
+    }
+
+    public void ToggleDarkMode()
+    {
+        _isDarkMode = !_isDarkMode;
+    }
+}

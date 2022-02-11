@@ -1,28 +1,23 @@
+using HealthCareManager.Server;
 using HealthCareManager.Server.Data;
-using HealthCareManager.Server.Models;
+using HealthCareManager.Shared.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+connectionString = PostreConnectionStringParser.Parse(connectionString);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseNpgsql(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(x =>
-{
-
-});
 
 builder.Services.AddIdentityCore<ApplicationUser>(options =>
 {
@@ -36,13 +31,35 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(x =>
+    {
+        x.RequireHttpsMetadata = true;
+        x.SaveToken = true;
+        x.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = "HealthCareManager",
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("ThisShouldBeARelativelyLongSecret")),
+            ValidAudience = "HealthCareManager",
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromMinutes(1)
+        };
+    });
+
 builder.Services.AddAuthentication();    
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
+builder.Services.AddTransient<UserService>();
+
 var app = builder.Build();
-int callCount = 0;
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -74,12 +91,40 @@ app.MapFallbackToFile("index.html");
 
 app.MapGet("/api/patient/{rfid}", (string rfid, [FromQuery] string token) =>
 {
-    //if (token == "access_token_12345" && rfid is "7A667680" or "E3C6712")
-    //    return $"#Success: ID={new Random().Next(1, 3)}*";
+    if (token != "access_token_12345")
+        return "#Authorization Error*";
 
-    //return "#No Patient Found*";
-    callCount++;
-    return $"#{callCount}*";
+    if(rfid is not "7A667680" or "E3C6712")
+        return "#No Patient Found*";
+
+    return $"#Success: ID={new Random().Next(1, 3)}*";
 });
 
 app.Run();
+
+static class PostreConnectionStringParser
+{
+    public static string Parse(string connectionString)
+    {
+        connectionString = connectionString.Replace("postgres://", string.Empty);
+
+        var pgUserPass = connectionString.Split("@")[0];
+        var pgHostPortDb = connectionString.Split("@")[1];
+        var pgHostPort = pgHostPortDb.Split("/")[0];
+
+        var pgDb = pgHostPortDb.Split("/")[1];
+        var pgUser = pgUserPass.Split(":")[0];
+        var pgPass = pgUserPass.Split(":")[1];
+        var pgHost = pgHostPort.Split(":")[0];
+        var pgPort = pgHostPort.Split(":")[1];
+
+        connectionString = $"Server={pgHost};Port={pgPort};User Id={pgUser};Password={pgPass};Database={pgDb};";
+#if DEBUG
+        connectionString += "Include Error Detail=true;";
+#else
+            //connectionString += "sslmode=Require;Trust Server Certificate=true;";
+#endif
+
+        return connectionString;
+    }
+}

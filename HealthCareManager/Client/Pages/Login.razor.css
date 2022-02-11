@@ -1,0 +1,35 @@
+﻿.container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    padding: 1px;
+    height: 500px;
+    border: solid 1px #7E6FFF;
+    border-radius: 7px;
+    max-width: 500px;
+    box-shadow: 2px 1.5px grey;
+}
+
+.light-bg{
+    background-color: #f8f8ff;
+}
+
+@media only screen and (max-width: 600px) {
+  .container {
+    border: 0;
+    border-radius: 0;
+  }
+}
+
+.field {
+    
+}
+
+.form-button{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 10px;
+}
