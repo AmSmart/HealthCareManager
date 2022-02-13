@@ -1,0 +1,14 @@
+﻿@using MedicalEventModel = HealthCareManager.Shared.Models.MedicalEvent
+
+<div>
+    <MudTextField T="@string" InputType="InputType.Text" Lines="3" Disabled Label="Info" Text="@Data.Info" />
+    <MudDatePicker Disabled Label="Time of Occurence" Date="@Data.Time" />
+</div>
+
+@code{
+    [Parameter]
+    public MedicalEventModel Data { get; set; }
+    
+    [Parameter]
+    public EventCallback<MedicalEventModel> DataChanged { get; set; }
+}

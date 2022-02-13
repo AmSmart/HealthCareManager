@@ -13,7 +13,7 @@
         <DialogContent>
             <div class="d-flex flex-column py-1">
                 <DataAnnotationsValidator />
-                @*<ValidationSummary />*@
+                <ValidationSummary />
 
                 <MudTextField Label="User Name" InputType="InputType.Text" @bind-Value="@Dto.UserName"
                               Margin="Margin.Dense" Variant="Variant.Outlined" />
@@ -47,7 +47,7 @@
 
     public CreateUserDTO Dto { get; set; } = new() { UserType = UserType.Doctor };
 
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = default!;
 
     void Close() => MudDialog.Close(DialogResult.Ok(true));
 

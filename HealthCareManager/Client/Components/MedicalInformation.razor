@@ -1,0 +1,11 @@
+﻿<div>
+    <MudTextField T="@string" InputType="InputType.Text" Label="@Data.Key" Disabled @bind-Text="@Data.Value"/>    
+</div>
+
+@code{
+    [Parameter]
+    public MedicalInfo Data { get; set; } = default!;
+    
+    [Parameter]
+    public EventCallback<MedicalInfo> DataChanged { get; set; } = default!;
+}

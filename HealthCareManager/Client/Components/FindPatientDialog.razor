@@ -8,12 +8,12 @@
 @inject HubConnection HubConnection;
 
 
-<EditForm Model="@Dto" OnValidSubmit="@RegisterPatient">
+<EditForm Model="@Dto" OnValidSubmit="@FindPatient">
     <MudDialog Class="custom-modal">
         <TitleContent>
             <MudText Typo="Typo.h6">
                 <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1" />
-                Add New Patient?
+                Find Patient?
             </MudText>
         </TitleContent>
         <DialogContent>
@@ -21,24 +21,13 @@
                 <DataAnnotationsValidator />
                 <ValidationSummary />
                 <MudTextField Label="RFID" InputType="InputType.Text" @bind-Value="@Dto.RfidTagId"
-                              Margin="Margin.Dense" Variant="Variant.Outlined" HelperText="Swipe RFID Tag" />
-                              
-                <MudTextField Label="Full Name" InputType="InputType.Text" @bind-Value="@Dto.FullName"
-                              Margin="Margin.Dense" Variant="Variant.Outlined" />                                             
-
-                <MudSelect @bind-Value="@Dto.Gender" T="@string" Label="Gender" AnchorOrigin="Origin.BottomCenter">
-                    <MudSelectItem Value="@("Male")" />
-                    <MudSelectItem Value="@("Female")" />
-                </MudSelect>
-                              
-                <MudTextField Label="Other Information" InputType="InputType.Text" @bind-Value="@Dto.OtherInformation"
-                              Margin="Margin.Dense" Variant="Variant.Outlined" Lines="5" />                    
+                              Margin="Margin.Dense" Variant="Variant.Outlined" HelperText="Swipe RFID Tag" />                   
             </div
         </DialogContent>
         <DialogActions>
             <MudButton OnClick="@Close">Cancel</MudButton>
             <LoadingButton IsSubmitType="true" Loading="_isLoading" LoadingText="Loading">
-                Register
+                Find
             </LoadingButton>
         </DialogActions>
     </MudDialog>
@@ -47,19 +36,20 @@
 @code {
     bool _isLoading;
 
-    public CreatePatientDTO Dto { get; set; } = new();
+    public FindPatientDTO Dto { get; set; } = new();
 
     [CascadingParameter] MudDialogInstance MudDialog { get; set; } = default!;
 
-    void Close() => MudDialog.Close(DialogResult.Ok(true));
+    void Close() => MudDialog.Close<Patient>(null);
 
-    public async Task RegisterPatient()
+    public async Task FindPatient()
     {
         _isLoading = true;
         try
         {
-            var response = await ServerApi.AddPatientAsync(Dto);
+            var response = await ServerApi.GetPatientAsync(Dto.RfidTagId);
             Snackbar.Add(response.Message, Severity.Success);
+            MudDialog.Close<Patient>(response.Data);
         }
         catch(ApiException ex)
         {
@@ -80,7 +70,7 @@
             StateHasChanged();
         });
     }
-     
+
     public void Dispose()
     {
         HubConnection.Remove("id");

@@ -1,27 +1,34 @@
 ﻿@page "/dashboard/admin"
+@using HealthCareManager.Client.Authentication
 @using Microsoft.AspNetCore.Authorization
 @inject IDialogService DialogService;
+@inject JwtAuthStateProvider JwtAuthStateProvider;
 @attribute [Authorize]
 
 <PageTitle>Admin's Dashboard</PageTitle>
 
 <div class="container">
     <MudText Typo="Typo.h5">Welcome to Admin's' Dashboard</MudText>
-    <MudText Typo="Typo.subtitle2">Hi @(name), Here's what you can do</MudText>
+    <MudText Typo="Typo.subtitle2">Hi @(_name), Here's what you can do</MudText>
 
     <div class="buttons">
-        <MudButton Variant="Variant.Outlined" OnClick="@AddUser">Add New User</MudButton>
-        <MudButton Variant="Variant.Outlined" OnClick="@AddPatient">Add New Patient</MudButton>
+        <MudButton Class="buttons-item" Style="margin-right: 5px" Variant="Variant.Outlined" OnClick="@AddUser">Add New User</MudButton>
+        <MudButton Class="buttons-item" Variant="Variant.Outlined" OnClick="@AddPatient">Add New Patient</MudButton>
     </div>
     
 </div>
 
 @code{
-    string name = "Test Name";
+    string _name = "";
 
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = default!;
 
     void AddUser() => DialogService.Show<AddUserDialog>();
 
     void AddPatient() => DialogService.Show<AddPatientDialog>();
+
+    protected override void OnInitialized()
+    {        
+        _name = JwtAuthStateProvider.GetUserName();
+    }
 }

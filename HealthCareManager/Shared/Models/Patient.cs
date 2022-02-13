@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -22,7 +23,7 @@ public class Patient
     public List<Prescription> Prescriptions { get; set; } = new();
     
     [Column(TypeName = "jsonb")]
-    public Dictionary<string, string> MedicalInformation { get; set; } = new();
+    public List<MedicalInfo> MedicalInformation { get; set; } = new();
     
     [Column(TypeName = "jsonb")]
     public List<MedicalEvent> MedicalHistory { get; set; } = new();
@@ -32,22 +33,32 @@ public class Prescription
 {
     public int Id { get; set; }
 
+    [Required]
     public string MedicationName { get; set; } = string.Empty;
 
+    [Required]
     public string DosageDescription { get; set; } = string.Empty;
 
-    public DateOnly StartDate { get; set; }
+    [Required]
+    public DateTime? StartDate { get; set; }
 
-    public DateOnly EndDate { get; set; }
+    [Required]
+    public DateTime? EndDate { get; set; }
 
-    public int AllowedCount { get; set; }
-
-    public int CollectedCount { get; set; }
+    [Required]
+    public bool Collected { get; set;  }
 }
 
 public class MedicalEvent
 {
-    public DateTime Time { get; set; }
+    public DateTime? Time { get; set; }
 
+    [Required]
     public string Info { get; set; } = string.Empty;
+}
+
+public class MedicalInfo
+{
+    public string Key { get; set; } = string.Empty;
+    public string Value { get; set; } = string.Empty;
 }

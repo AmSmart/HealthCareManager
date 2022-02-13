@@ -1,0 +1,28 @@
+﻿@using PrescriptionModel = HealthCareManager.Shared.Models.Prescription
+
+<div>
+    <MudTextField T="@string" InputType="InputType.Text" Disabled Label="Medication" @bind-Text="@Data.MedicationName" />
+    <MudTextField T="@string" InputType="InputType.Text" Disabled Label="Dosage" @bind-Text="@Data.DosageDescription" />
+    <MudDatePicker Disabled Label="Start Date" @bind-Date="@Data.StartDate" />
+    <MudDatePicker Disabled Label="End Date" @bind-Date="@Data.EndDate" />
+    if (Data.Collected)
+    {
+        <MudText>Patient has collected this prescription</MudText>       
+    }
+    else
+    {
+        <MudButton OnClick="@OnMarkPrescription">Mark as collected</MudButton>
+    }
+</div>
+
+@code{
+    [Parameter]
+    public PrescriptionModel Data { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback<PrescriptionModel> DataChanged { get; set; }
+
+    [Parameter]
+    public EventCallback OnMarkPrescription { get; set; }
+
+}

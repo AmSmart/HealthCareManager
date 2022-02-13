@@ -34,20 +34,54 @@ namespace HealthCareManager.Server.Contollers
         [HttpGet("seed")]
         public async Task<IActionResult> SeedData()
         {
-            var admin = new ApplicationUser
+            var all = _dbContext.Patients.ToList();
+            _dbContext.RemoveRange(all);
+            await _dbContext.SaveChangesAsync();
+
+            var patient = new Patient
             {
-                FullName = "App Admin",
-                UserName = "admin",
-                UserType = UserType.Admin
+                RfidTagId = "12345",
+                FullName = "Subject Under Test",
+                Gender = "Test Gender",
+                OtherInformation = "This is some " +
+                "verrrryyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy long text",
+                MedicalHistory = new()
+                {
+                    new() { Info = "Some Info", Time = DateTime.Today.AddDays(-10) },
+                    new() { Info = "Some Other Info", Time = DateTime.Today.AddDays(-5) }                    
+                },
+                MedicalInformation = new()
+                {
+                    new(){ Key = "Blood Group", Value = "O+"},
+                    new(){ Key = "Genotype", Value = "AA"}
+                },
+                Prescriptions = new()
+                {
+                    new()
+                    {
+                        MedicationName = "Test Medicine 1",
+                        DosageDescription = "1 per day",
+                        StartDate = DateTime.Today.AddDays(-10),
+                        EndDate = DateTime.Today.AddDays(-5),
+                    },
+                    new()
+                    {
+                        MedicationName = "Test Medicine 2",
+                        DosageDescription = "2 per day",
+                        StartDate = DateTime.Today.AddDays(-10),
+                        EndDate = DateTime.Today.AddDays(-5),
+                    }
+                }
+
             };
-            var claim = new Claim(nameof(UserType), "Admin");
-            var result = await _userManager.CreateAsync(admin, "password");
-            await _userManager.AddClaimAsync(admin, claim);
 
-            if(result.Succeeded)
-                return Ok(AppResponse.Success("Data seeding successful"));
+            _dbContext.Patients.Add(patient);
+            await _dbContext.SaveChangesAsync();
 
-            return BadRequest(AppResponse.Error("Unknown Error Occurred"));
+            //if(result.Succeeded)
+            return Ok(AppResponse.Success("Data seeding successful"));
+
+            //return BadRequest(AppResponse.Error("Unknown Error Occurred"));
         }
 
         [AllowAnonymous]
@@ -95,6 +129,9 @@ namespace HealthCareManager.Server.Contollers
 
             var patient = await _dbContext.GetPatientByRfidAsync(rfid);
 
+            if (patient is null)
+                return BadRequest(AppResponse.Error("Patient Not Found"));
+
             switch (userType)
             {
                 case UserType.Doctor:
@@ -136,7 +173,7 @@ namespace HealthCareManager.Server.Contollers
         }
         
         [HttpPut("patient/{patientId}/prescription/{prescriptionId}")]
-        public async Task<IActionResult> IncrementCollectedPrescriptionCount(int patientId, int prescriptionId)
+        public async Task<IActionResult> MarkCollectedPrescription(int patientId, int prescriptionId)
         {
             string userTypetring = User.FindFirstValue(nameof(UserType));
             UserType userType = (UserType)Enum.Parse(typeof(UserType), userTypetring);
@@ -146,11 +183,12 @@ namespace HealthCareManager.Server.Contollers
 
             var patient = await _dbContext.GetPatientByIdAsync(patientId);
             var prescription = patient.Prescriptions.First(x => x.Id == prescriptionId);
-            prescription.CollectedCount++;
+            prescription.Collected = true;
 
+            _dbContext.Update(patient);
             await _dbContext.SaveChangesAsync();
             
-            return Ok(AppResponse.Success("Increment Successful"));
+            return Ok(AppResponse.Success("Prescription Marked Successfully"));
         }
 
     }

@@ -1,13 +1,161 @@
 ﻿@page "/dashboard/doctor"
+@using HealthCareManager.Client.Authentication
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.SignalR.Client
+@using PrescriptionModel = HealthCareManager.Shared.Models.Prescription;
+@using MedicalEventModel = HealthCareManager.Shared.Models.MedicalEvent;
+@inject IDialogService DialogService;
+@inject ISnackbar Snackbar;
 @attribute [Authorize]
+@inject HubConnection HubConnection
+@inject JwtAuthStateProvider JwtAuthStateProvider;
+
 
 <PageTitle>Doctor's Dashboard</PageTitle>
 
-<h1>Doctor's Dashboard</h1>
+<div class="container">
+    <MudText Typo="Typo.h5">Welcome to Admin's' Dashboard</MudText>
+    <MudText Typo="Typo.subtitle2">Hi @(_name), Here's what you can do</MudText>
 
-<h6>Page coming soon...</h6>
+    <div class="buttons">
+        <MudButton Class="buttons-item" Variant="Variant.Outlined" OnClick="@FindPatient">View Patient</MudButton>
+    </div>
 
-@code{
+    <div class="patient">
+        @if (_patientLoaded)
+        {
+            <MudTextField T="@string" InputType="InputType.Text" Disabled FullWidth Label="Full Name" Value="@Patient.FullName" />
+            <MudTextField T="@string" InputType="InputType.Text" Disabled FullWidth Label="Gender" Value="@Patient.Gender" />
+            <MudTextField T="@string" InputType="InputType.Text" Disabled FullWidth Label="Other Information" Lines="5" Value="@Patient.OtherInformation" />
+
+            <br />
+
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">Medical Information</MudText>
+                    </CardHeaderContent>
+                    <CardHeaderActions>
+                        <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="@AddInformation" Color="Color.Default" />
+                    </CardHeaderActions>
+                </MudCardHeader>
+                <MudCardContent>
+                    @for (int i = 0; i < Patient.MedicalInformation.Count; i++)
+                    {
+                        int localI = i;
+                        <MedicalInformation @bind-Data="@Patient.MedicalInformation[localI]" />
+                    }
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton Variant="Variant.Text" Color="Color.Primary">Read More</MudButton>
+                </MudCardActions>
+            </MudCard>
+
+            <br />
+
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">Medical History</MudText>
+                    </CardHeaderContent>
+                    <CardHeaderActions>
+                        <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="@AddHistory" Color="Color.Default" />
+                    </CardHeaderActions>
+                </MudCardHeader>
+                <MudCardContent>
+                    @for (int i = 0; i < Patient.MedicalHistory.Count; i++)
+                    {
+                        int localI = i;
+                        <MedicalEvent @bind-Data="@Patient.MedicalHistory[localI]" />
+                    }
+                </MudCardContent>
+            </MudCard>
+
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">Prescriptions</MudText>
+                    </CardHeaderContent>
+                    <CardHeaderActions>
+                        <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="@AddPrescription" Color="Color.Default" />
+                    </CardHeaderActions>
+                </MudCardHeader>
+                <MudCardContent>
+                    @for (int i = 0; i < Patient.Prescriptions.Count; i++)
+                    {
+                        int localI = i;
+                        <Prescription @bind-Data="@Patient.Prescriptions[localI]" OnMarkPrescription="@(() => Patient.Prescriptions[localI].Collected = true)" />
+                    }
+                </MudCardContent>
+            </MudCard>
+        }
+    </div>
+    <LoadingButton Loading="_isSaving" LoadingText="Loading">Save Changes</LoadingButton>
+</div>
+
+
+
+@code {
+    bool _patientLoaded;
+    bool _isSaving;
+    string _name = "";
+
+    public Patient Patient { get; set; } = new();
+
+    async Task FindPatient()
+    {
+        var reference = DialogService.Show<FindPatientDialog>();
+        var patient = await reference.GetReturnValueAsync<Patient>();
+
+        if (patient is object)
+        {
+            Patient = patient;
+            _patientLoaded = true;
+        }
+    }
+
+    async Task SaveData()
+    {
+
+    }
+
+    void AddPrescription()
+    {
+        int count = Patient.Prescriptions.Count;
+        Patient.Prescriptions.Add(new PrescriptionModel
+            {
+                Id = count + 1,
+                DosageDescription = "",
+                MedicationName = "",
+                StartDate = DateTime.Now,
+                EndDate = DateTime.Now.AddDays(1),
+                Collected = false
+            });
+    }
+
+    void AddHistory()
+    {
+        Patient.MedicalHistory.Add(new MedicalEventModel
+            {
+                Time = DateTime.Now,
+                Info = ""
+            });
+    }
+
+    void AddInformation()
+    {
+        //TODO:
+
+    }
+
+    async Task UpdatePatient()
+    {
+
+    }
+
+    protected override void OnInitialized()
+    {
+        _name = JwtAuthStateProvider.GetUserName();
+    }
 
 }

@@ -10,7 +10,12 @@
 	display:flex;
 	flex-direction: row;
 	margin-top: 2px;
-	justify-content: center;
+	justify-content: space-between;
 	align-items: center;
-	margin-right: 1px;
+}
+
+.buttons-item{
+	margin-right: 2px;
+	background:red;
+	border: solid 1px red;
 }

@@ -1,0 +1,44 @@
+﻿using Microsoft.AspNetCore.SignalR.Client
+@using System.IO
+
+
+<EditForm Model="@Dto" OnValidSubmit="@SubmitMedicalInfo">
+    <MudDialog Class="custom-modal">
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1" />
+                Add Medical Information?
+            </MudText>
+        </TitleContent>
+        <DialogContent>
+            <div class="d-flex flex-column py-1">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <MudTextField Label="Key" InputType="InputType.Text" @bind-Value="@Dto.Key"
+                              Margin="Margin.Dense" Variant="Variant.Outlined" />
+                              
+                <MudTextField Label="Value" InputType="InputType.Text" @bind-Value="@Dto.Value"
+                              Margin="Margin.Dense" Variant="Variant.Outlined" />                                                
+            </div
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="@Close">Cancel</MudButton>
+            <LoadingButton IsSubmitType="true" LoadingText="Loading">
+                Add
+            </LoadingButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+
+@code {
+    public MedicalInfo Dto { get; set; } = new();
+
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = default!;
+
+    void Close() => MudDialog.Close(DialogResult.Ok(true));
+
+    void SubmitMedicalInfo()
+    {
+        MudDialog.Close<MedicalInfo>(Dto);        
+    }
+}

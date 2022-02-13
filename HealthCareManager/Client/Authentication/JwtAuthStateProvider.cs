@@ -17,26 +17,28 @@ namespace HealthCareManager.Client.Authentication
     public class JwtAuthStateProvider : AuthenticationStateProvider
     {
         private readonly ILocalStorageService _localStorage;
-        private readonly HttpClient _httpClient;
-
-        public JwtAuthStateProvider(ILocalStorageService localStorage, HttpClient httpClient)
+        public string _userName = "UnknownUser";
+        public JwtAuthStateProvider(ILocalStorageService localStorage)
         {
             _localStorage = localStorage;
-            _httpClient = httpClient;
         }
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             var token = await GetTokenAsync();
+            var claims = ParseClaimsFromJwt(token);
+            if (claims is object)
+            {
+                string? name = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (name is object)
+                    _userName = name;
+            }
+
             var identity = string.IsNullOrEmpty(token)
                 ? new ClaimsIdentity()
-                : new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt");
+                : new ClaimsIdentity(claims, "jwt");
 
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            //_httpClient.DefaultRequestHeaders.Remove("Authorization");
-            //_httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
             return new AuthenticationState(new ClaimsPrincipal(identity));
-
         }
 
         public async Task SetTokenAsync(string? token, DateTime expiry = default)
@@ -73,8 +75,13 @@ namespace HealthCareManager.Client.Authentication
             return null;
         }
 
-        private static IEnumerable<Claim>? ParseClaimsFromJwt(string jwt)
+        public string GetUserName() => _userName;
+
+        private static IEnumerable<Claim>? ParseClaimsFromJwt(string? jwt)
         {
+            if(jwt is null)
+                return null;
+
             var payload = jwt.Split('.')[1];
             var jsonBytes = ParseBase64WithoutPadding(payload);
             var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);

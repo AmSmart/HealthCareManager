@@ -1,0 +1,49 @@
+﻿@using Microsoft.AspNetCore.SignalR.Client
+@using System.IO
+@using PrescriptionModel = HealthCareManager.Shared.Models.Prescription;
+
+
+<EditForm Model="@Dto" OnValidSubmit="@SubmitPrescription">
+    <MudDialog Class="custom-modal">
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1" />
+                Add Prescription?
+            </MudText>
+        </TitleContent>
+        <DialogContent>
+            <div class="d-flex flex-column py-1">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <MudTextField Label="Medicine" InputType="InputType.Text" @bind-Value="@Dto.MedicationName"
+                              Margin="Margin.Dense" Variant="Variant.Outlined" />
+                              
+                <MudTextField Label="Dosage" InputType="InputType.Text" @bind-Value="@Dto.DosageDescription"
+                              Margin="Margin.Dense" Variant="Variant.Outlined" />
+                              
+                <MudDatePicker Label="Start Date" @bind-Date="@Dto.StartDate" Margin="Margin.Dense" Variant="Variant.Outlined" />
+                
+                <MudDatePicker Label="End Date" @bind-Date="@Dto.EndDate" Margin="Margin.Dense" Variant="Variant.Outlined" />                                                  
+            </div
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="@Close">Cancel</MudButton>
+            <LoadingButton IsSubmitType="true" LoadingText="Loading">
+                Add
+            </LoadingButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+
+@code {
+    public PrescriptionModel Dto { get; set; } = new();
+
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = default!;
+
+    void Close() => MudDialog.Close(DialogResult.Ok(true));
+
+    void SubmitPrescription()
+    {
+        MudDialog.Close<PrescriptionModel>(Dto);        
+    }
+}
