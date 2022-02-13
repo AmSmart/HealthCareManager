@@ -13,9 +13,3 @@
 	justify-content: space-between;
 	align-items: center;
 }
-
-.buttons-item{
-	margin-right: 2px;
-	background:red;
-	border: solid 1px red;
-}

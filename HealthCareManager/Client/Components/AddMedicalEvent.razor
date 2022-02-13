@@ -1,1 +1,43 @@
-﻿
+﻿@using System.IO
+@using MedicalEventModel = HealthCareManager.Shared.Models.MedicalEvent;
+
+<EditForm Model="@Dto" OnValidSubmit="@SubmitMedicalEvent">
+    <MudDialog Class="custom-modal">
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1" />
+                Add Medical Event?
+            </MudText>
+        </TitleContent>
+        <DialogContent>
+            <div class="d-flex flex-column py-1">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <MudDatePicker Label="Time of Occurrence" @bind-Date="@Dto.Time"
+                              Margin="Margin.Dense" Variant="Variant.Outlined" />
+                              
+                <MudTextField Label="Info" InputType="InputType.Text" @bind-Text="@Dto.Info"
+                              Margin="Margin.Dense" T="@string" Variant="Variant.Outlined" />                                                
+            </div>
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="@Close">Cancel</MudButton>
+            <LoadingButton IsSubmitType="true" LoadingText="Loading">
+                Add
+            </LoadingButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+
+@code {
+    public MedicalEventModel Dto { get; set; } = new();
+
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = default!;
+
+    void Close() => MudDialog.Close(DialogResult.Ok(true));
+
+    void SubmitMedicalEvent()
+    {
+        MudDialog.Close<MedicalEventModel>(Dto);        
+    }
+}

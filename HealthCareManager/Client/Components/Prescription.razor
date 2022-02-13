@@ -1,18 +1,20 @@
 ﻿@using PrescriptionModel = HealthCareManager.Shared.Models.Prescription
 
-<div>
+<div class="mb-3">
     <MudTextField T="@string" InputType="InputType.Text" Disabled Label="Medication" @bind-Text="@Data.MedicationName" />
     <MudTextField T="@string" InputType="InputType.Text" Disabled Label="Dosage" @bind-Text="@Data.DosageDescription" />
     <MudDatePicker Disabled Label="Start Date" @bind-Date="@Data.StartDate" />
     <MudDatePicker Disabled Label="End Date" @bind-Date="@Data.EndDate" />
-    if (Data.Collected)
-    {
-        <MudText>Patient has collected this prescription</MudText>       
-    }
-    else
-    {
-        <MudButton OnClick="@OnMarkPrescription">Mark as collected</MudButton>
-    }
+    <div class="mt-2 text-center">
+        @if (Data.Collected)
+        {
+            <MudText>Patient has collected this prescription</MudText>       
+        }
+        else
+        {
+            <LoadingButton IsSubmitType="false" OnClick="@OnMarkPrescription">Mark as collected</LoadingButton>
+        }
+    </div>
 </div>
 
 @code{

@@ -6,6 +6,7 @@
 @using MedicalEventModel = HealthCareManager.Shared.Models.MedicalEvent;
 @inject IDialogService DialogService;
 @inject ISnackbar Snackbar;
+@inject IServerApi ServerApi;
 @attribute [Authorize]
 @inject HubConnection HubConnection
 @inject JwtAuthStateProvider JwtAuthStateProvider;
@@ -14,10 +15,12 @@
 <PageTitle>Doctor's Dashboard</PageTitle>
 
 <div class="container">
-    <MudText Typo="Typo.h5">Welcome to Admin's' Dashboard</MudText>
-    <MudText Typo="Typo.subtitle2">Hi @(_name), Here's what you can do</MudText>
+    <div class="text-center">
+        <MudText Typo="Typo.h5">Welcome to Doctor's Dashboard</MudText>
+    </div>
 
-    <div class="buttons">
+    <div class="text-center mt-3">
+        <MudText Typo="Typo.subtitle2">Hi @(_name), Here's what you can do</MudText>
         <MudButton Class="buttons-item" Variant="Variant.Outlined" OnClick="@FindPatient">View Patient</MudButton>
     </div>
 
@@ -36,7 +39,7 @@
                         <MudText Typo="Typo.h6">Medical Information</MudText>
                     </CardHeaderContent>
                     <CardHeaderActions>
-                        <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="@AddInformation" Color="Color.Default" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="@AddMedicalInformation" Color="Color.Default" />
                     </CardHeaderActions>
                 </MudCardHeader>
                 <MudCardContent>
@@ -46,9 +49,6 @@
                         <MedicalInformation @bind-Data="@Patient.MedicalInformation[localI]" />
                     }
                 </MudCardContent>
-                <MudCardActions>
-                    <MudButton Variant="Variant.Text" Color="Color.Primary">Read More</MudButton>
-                </MudCardActions>
             </MudCard>
 
             <br />
@@ -59,7 +59,7 @@
                         <MudText Typo="Typo.h6">Medical History</MudText>
                     </CardHeaderContent>
                     <CardHeaderActions>
-                        <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="@AddHistory" Color="Color.Default" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="@AddMedicalEvent" Color="Color.Default" />
                     </CardHeaderActions>
                 </MudCardHeader>
                 <MudCardContent>
@@ -70,6 +70,8 @@
                     }
                 </MudCardContent>
             </MudCard>
+
+            <br/>
 
             <MudCard>
                 <MudCardHeader>
@@ -88,9 +90,11 @@
                     }
                 </MudCardContent>
             </MudCard>
+            <div class="text-center mt-3 mb-3">
+                <LoadingButton Loading="_isSaving" IsSubmitType="false" OnClick="@UpdatePatient" LoadingText="Loading">Save Changes</LoadingButton>
+            </div>
         }
     </div>
-    <LoadingButton Loading="_isSaving" LoadingText="Loading">Save Changes</LoadingButton>
 </div>
 
 
@@ -111,46 +115,62 @@
         {
             Patient = patient;
             _patientLoaded = true;
+            return;
+        }
+        _patientLoaded = false;
+    }
+
+    async Task AddPrescription()
+    {
+        var reference = DialogService.Show<AddPrescription>();
+        var prescription = await reference.GetReturnValueAsync<PrescriptionModel>();
+
+        if (prescription is PrescriptionModel)
+        {
+            prescription.Id = Patient.Prescriptions.Count + 1;
+            Patient.Prescriptions.Add(prescription);
         }
     }
 
-    async Task SaveData()
+    async Task AddMedicalEvent()
     {
+        var reference = DialogService.Show<AddMedicalEvent>();
+        var medEvent = await reference.GetReturnValueAsync<MedicalEventModel>();
+
+        if (medEvent is MedicalEventModel)
+        {
+            Patient.MedicalHistory.Add(medEvent);
+        }
 
     }
 
-    void AddPrescription()
+    async Task AddMedicalInformation()
     {
-        int count = Patient.Prescriptions.Count;
-        Patient.Prescriptions.Add(new PrescriptionModel
-            {
-                Id = count + 1,
-                DosageDescription = "",
-                MedicationName = "",
-                StartDate = DateTime.Now,
-                EndDate = DateTime.Now.AddDays(1),
-                Collected = false
-            });
-    }
+        var reference = DialogService.Show<AddMedicalInfo>();
+        var medInfo = await reference.GetReturnValueAsync<MedicalInfo>();
 
-    void AddHistory()
-    {
-        Patient.MedicalHistory.Add(new MedicalEventModel
-            {
-                Time = DateTime.Now,
-                Info = ""
-            });
-    }
-
-    void AddInformation()
-    {
-        //TODO:
-
+        if (medInfo is object)
+        {
+            Patient.MedicalInformation.Add(medInfo);
+        }
     }
 
     async Task UpdatePatient()
     {
-
+        _isSaving = true;
+        try
+        {
+            var response = await ServerApi.UpdatePatientAsync(Patient);
+            Snackbar.Add(response.Message, Severity.Success);
+        }
+        catch
+        {
+            Snackbar.Add("Error occured while updating", Severity.Error);
+        }
+        finally
+        {
+            _isSaving = false;
+        }
     }
 
     protected override void OnInitialized()

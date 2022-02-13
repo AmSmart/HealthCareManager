@@ -41,8 +41,12 @@ namespace HealthCareManager.Server
             if (!result.Succeeded)
                 throw new Exception(string.Join(',', $"{result.Errors.Select(x => x.Description)}"));
 
-            var claim = new Claim(nameof(UserType), user.UserType.ToString());
-            await _userManager.AddClaimAsync(user, claim);
+            var claims = new List<Claim>
+            {
+                new(nameof(UserType), user.UserType.ToString()),
+                new("FullName", user.FullName)
+            };
+            await _userManager.AddClaimsAsync(user, claims);
 
             return user;
         }

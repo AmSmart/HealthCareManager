@@ -1,5 +1,4 @@
-﻿@using Microsoft.AspNetCore.SignalR.Client
-@using System.IO
+﻿@using System.IO
 @using PrescriptionModel = HealthCareManager.Shared.Models.Prescription;
 
 
@@ -24,7 +23,7 @@
                 <MudDatePicker Label="Start Date" @bind-Date="@Dto.StartDate" Margin="Margin.Dense" Variant="Variant.Outlined" />
                 
                 <MudDatePicker Label="End Date" @bind-Date="@Dto.EndDate" Margin="Margin.Dense" Variant="Variant.Outlined" />                                                  
-            </div
+            </div>
         </DialogContent>
         <DialogActions>
             <MudButton OnClick="@Close">Cancel</MudButton>

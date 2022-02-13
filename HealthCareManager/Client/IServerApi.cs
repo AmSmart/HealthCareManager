@@ -20,10 +20,13 @@ namespace HealthCareManager.Client
         [Get("/api/patient-data/{rfid}")]
         Task<AppResponse<Patient>> GetPatientAsync(string rfid);
 
+        [Put("/api/patient")]
+        Task<AppResponse<Patient>> UpdatePatientAsync([Body] Patient patient);
+
         [Post("/api/patient")]
         Task<AppResponse> AddPatientAsync([Body] CreatePatientDTO request);
 
-        [Put("/patient/{patientId}/prescription/{prescriptionId}")]
-        Task<AppResponse<string>> IncrementCollectedPrescriptionCountAsync(int patientId, int prescriptionId);
+        [Put("/api/patient/{patientId}/prescription/{prescriptionId}")]
+        Task<AppResponse<string>> MarkPrescriptionCollected(int patientId, int prescriptionId);
     }
 }

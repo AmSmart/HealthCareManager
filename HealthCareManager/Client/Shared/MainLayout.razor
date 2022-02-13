@@ -1,4 +1,10 @@
-﻿@inherits LayoutComponentBase
+﻿@using Blazored.LocalStorage
+@using HealthCareManager.Client.Authentication
+@inherits LayoutComponentBase
+@inject ILocalStorageService LocalStorage;
+@inject NavigationManager Navigation;
+@inject JwtAuthStateProvider AuthProvider;
+
 
 <MudThemeProvider @ref="_mudThemeProvider" @bind-IsDarkMode="_isDarkMode"/>
 <MudDialogProvider/>
@@ -9,7 +15,11 @@
     <MudAppBar Elevation="1">
         <MudText Typo="Typo.h5" Class="ml-3">HealthCareManager</MudText>
         <MudSpacer />
-        <MudIconButton Icon="@(_isDarkMode ? @Icons.Filled.ModeNight : Icons.Filled.WbSunny)" OnClick="ToggleDarkMode" Color="Color.Inherit" Edge="Edge.End" />
+        @if (_loggedIn)
+        {                
+            <MudButton Variant="Variant.Outlined" OnClick="@Logout">Logout</MudButton>
+        }
+        <MudIconButton Icon="@(_isDarkMode ? Icons.Filled.WbSunny : Icons.Filled.ModeNight)" OnClick="ToggleDarkMode" Color="Color.Inherit" Edge="Edge.End" />
     </MudAppBar>
     <MudMainContent>
         @Body
@@ -19,8 +29,18 @@
 
 @code{
     bool _isDarkMode;
+    bool _loggedIn;
 
     MudThemeProvider _mudThemeProvider = default!;
+
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthenticationState { get; set; } = default!;
+
+    public async Task Logout()
+    {
+        await AuthProvider.SetTokenAsync(null);
+        Navigation.NavigateTo("/");
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -28,6 +48,15 @@
         {
             _isDarkMode = await _mudThemeProvider.GetSystemPreference();
             _mudThemeProvider.Theme.Palette.AppbarBackground = "#7E6FFF";
+            StateHasChanged();
+        }
+
+        var authState = await AuthenticationState;
+
+        bool currentlyLoggedIn = authState.User.Identity?.IsAuthenticated ?? false;
+        if (currentlyLoggedIn != _loggedIn)
+        {
+            _loggedIn = !_loggedIn;
             StateHasChanged();
         }
     }

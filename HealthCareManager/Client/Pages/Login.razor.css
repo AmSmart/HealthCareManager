@@ -1,4 +1,4 @@
-﻿.container{
+﻿.container {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -12,22 +12,21 @@
     box-shadow: 2px 1.5px grey;
 }
 
-.light-bg{
-    background-color: #f8f8ff;
+@media only screen and (min-width: 600px) {
+    .light-bg {
+        background-color: #f8f8ff;
+    }
 }
 
 @media only screen and (max-width: 600px) {
-  .container {
-    border: 0;
-    border-radius: 0;
-  }
+    .container {
+        border: 0;
+        border-radius: 0;
+        box-shadow: initial;
+    }
 }
 
-.field {
-    
-}
-
-.form-button{
+.form-button {
     display: flex;
     flex-direction: row;
     justify-content: center;

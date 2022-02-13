@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.SignalR.Client
-@using System.IO
+﻿@using System.IO
 
 
 <EditForm Model="@Dto" OnValidSubmit="@SubmitMedicalInfo">
@@ -19,7 +18,7 @@
                               
                 <MudTextField Label="Value" InputType="InputType.Text" @bind-Value="@Dto.Value"
                               Margin="Margin.Dense" Variant="Variant.Outlined" />                                                
-            </div
+            </div>
         </DialogContent>
         <DialogActions>
             <MudButton OnClick="@Close">Cancel</MudButton>

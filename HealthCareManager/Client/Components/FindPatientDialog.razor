@@ -22,7 +22,7 @@
                 <ValidationSummary />
                 <MudTextField Label="RFID" InputType="InputType.Text" @bind-Value="@Dto.RfidTagId"
                               Margin="Margin.Dense" Variant="Variant.Outlined" HelperText="Swipe RFID Tag" />                   
-            </div
+            </div>
         </DialogContent>
         <DialogActions>
             <MudButton OnClick="@Close">Cancel</MudButton>
@@ -40,7 +40,7 @@
 
     [CascadingParameter] MudDialogInstance MudDialog { get; set; } = default!;
 
-    void Close() => MudDialog.Close<Patient>(null);
+    void Close() => MudDialog.Close<Patient?>(null);
 
     public async Task FindPatient()
     {
@@ -49,12 +49,12 @@
         {
             var response = await ServerApi.GetPatientAsync(Dto.RfidTagId);
             Snackbar.Add(response.Message, Severity.Success);
-            MudDialog.Close<Patient>(response.Data);
+            MudDialog.Close<Patient?>(response.Data);
         }
         catch(ApiException ex)
         {
             var response = await ex.GetContentAsAsync<AppResponse>();
-            Snackbar.Add(response.Message, Severity.Error);
+            Snackbar.Add(response?.Message, Severity.Error);
         }
         finally
         {
@@ -64,9 +64,10 @@
 
     protected override void OnInitialized()
     {
-        HubConnection.On<string>("id", id =>
+        HubConnection.On<string>("id", async id =>
         {
             Dto.RfidTagId = id;
+            await FindPatient();
             StateHasChanged();
         });
     }

@@ -17,7 +17,7 @@ namespace HealthCareManager.Client.Authentication
     public class JwtAuthStateProvider : AuthenticationStateProvider
     {
         private readonly ILocalStorageService _localStorage;
-        public string _userName = "UnknownUser";
+        public string _userName = "Unknown User";
         public JwtAuthStateProvider(ILocalStorageService localStorage)
         {
             _localStorage = localStorage;
@@ -29,7 +29,7 @@ namespace HealthCareManager.Client.Authentication
             var claims = ParseClaimsFromJwt(token);
             if (claims is object)
             {
-                string? name = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+                string? name = claims.FirstOrDefault(x => x.Type == "FullName")?.Value;
                 if (name is object)
                     _userName = name;
             }

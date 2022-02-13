@@ -1,13 +1,128 @@
 ﻿@page "/dashboard/pharmacist"
+@using HealthCareManager.Client.Authentication
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.SignalR.Client
+@using PrescriptionModel = HealthCareManager.Shared.Models.Prescription;
+@using MedicalEventModel = HealthCareManager.Shared.Models.MedicalEvent;
+@inject IDialogService DialogService;
+@inject ISnackbar Snackbar;
+@inject IServerApi ServerApi;
 @attribute [Authorize]
+@inject HubConnection HubConnection
+@inject JwtAuthStateProvider JwtAuthStateProvider;
+
 
 <PageTitle>Pharmacist's Dashboard</PageTitle>
 
-<h1>Pharmacist's Dashboard</h1>
+<div class="container">
+    <div class="text-center">
+        <MudText Typo="Typo.h5">Welcome to Phramacist's Dashboard</MudText>
+    </div>
 
-<h6>Page coming soon...</h6>
+    <div class="text-center mt-3">
+        <MudText Typo="Typo.subtitle2">Hi @(_name), Here's what you can do</MudText>
+        <MudButton Class="buttons-item" Variant="Variant.Outlined" OnClick="@FindPatient">View Patient</MudButton>
+    </div>
 
-@code{
+    <div class="patient">
+        @if (_patientLoaded)
+        {
+            <MudTextField T="@string" InputType="InputType.Text" Disabled FullWidth Label="Full Name" Value="@Patient.FullName" />
+            <MudTextField T="@string" InputType="InputType.Text" Disabled FullWidth Label="Gender" Value="@Patient.Gender" />
+            <MudTextField T="@string" InputType="InputType.Text" Disabled FullWidth Label="Other Information" Lines="5" Value="@Patient.OtherInformation" />
+
+            <br />
+
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">Medical Information</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    @for (int i = 0; i < Patient.MedicalInformation.Count; i++)
+                    {
+                        int localI = i;
+                        <MedicalInformation @bind-Data="@Patient.MedicalInformation[localI]" />
+                    }
+                </MudCardContent>
+            </MudCard>
+
+            <br />
+
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">Medical History</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    @for (int i = 0; i < Patient.MedicalHistory.Count; i++)
+                    {
+                        int localI = i;
+                        <MedicalEvent @bind-Data="@Patient.MedicalHistory[localI]" />
+                    }
+                </MudCardContent>
+            </MudCard>
+
+            <br/>
+
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">Prescriptions</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    @for (int i = 0; i < Patient.Prescriptions.Count; i++)
+                    {
+                        int localI = i;
+                        <Prescription @bind-Data="@Patient.Prescriptions[localI]" OnMarkPrescription="@(() => MarkPrescription(localI))" />
+                    }
+                </MudCardContent>
+            </MudCard>
+        }
+    </div>
+</div>
+
+
+
+@code {
+    bool _patientLoaded;
+    string _name = "";
+
+    public Patient Patient { get; set; } = new();
+
+    async Task FindPatient()
+    {
+        var reference = DialogService.Show<FindPatientDialog>();
+        var patient = await reference.GetReturnValueAsync<Patient>();
+
+        if (patient is object)
+        {
+            Patient = patient;
+            _patientLoaded = true;
+            return;
+        }
+        _patientLoaded = false;
+    }
+
+    async Task MarkPrescription(int id)
+    {
+        try
+        {
+            var response = await ServerApi.MarkPrescriptionCollected(Patient.Id, id);
+            Snackbar.Add(response.Message, Severity.Success);
+        }
+        catch
+        {
+            Snackbar.Add("Error occured while updating", Severity.Error);
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        _name = JwtAuthStateProvider.GetUserName();
+    }
 
 }

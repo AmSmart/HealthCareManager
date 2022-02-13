@@ -32,7 +32,6 @@ namespace HealthCareManager.Server.Data
         
         public async Task UpdatePatient(Patient patient)
         {
-            patient.Id = 0;
             Patients.Update(patient);
             await SaveChangesAsync();
         }

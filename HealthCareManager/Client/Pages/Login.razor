@@ -42,13 +42,13 @@
         try
         {
             var response = await ServerApi.LoginAsync(Dto);
-            await AuthStateProvider.SetTokenAsync(response.Data.AccessToken, response.Data.Expiry);
+            await AuthStateProvider.SetTokenAsync(response?.Data?.AccessToken, response?.Data?.Expiry ?? DateTime.MinValue);
             Naviagtion.NavigateTo(AppRoutes.Index);
         }
         catch (ApiException ex)
         {
             var response = await ex.GetContentAsAsync<AppResponse>();
-            Snackbar.Add(response.Message, Severity.Error);
+            Snackbar.Add(response?.Message, Severity.Error);
         }
         finally
         {
