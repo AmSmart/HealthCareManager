@@ -1,8 +1,8 @@
 ﻿@using MedicalEventModel = HealthCareManager.Shared.Models.MedicalEvent
 
 <div class="mb-2">
-    <MudDatePicker Disabled Label="Time of Occurence" @bind-Date="@Data.Time" />
-    <MudTextField T="@string" InputType="InputType.Text" Lines="3" Variant="Variant.Outlined" Disabled Label="Info" @bind-Text="@Data.Info" />
+    <MudDatePicker ReadOnly Label="Time of Occurence" @bind-Date="@Data.Time" />
+    <MudTextField ReadOnly T="@string" contenteditable="false" InputType="InputType.Text" Lines="3" Variant="Variant.Outlined" Label="Info" @bind-Text="@Data.Info" />
 </div>
 
 @code{

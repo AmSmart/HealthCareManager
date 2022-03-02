@@ -14,7 +14,7 @@
 
 <PageTitle>Doctor's Dashboard</PageTitle>
 
-<div class="container">
+<div class="@(_patientLoaded ? "container" : "app-container")">
     <div class="text-center">
         <MudText Typo="Typo.h5">Welcome to Doctor's Dashboard</MudText>
     </div>
@@ -27,9 +27,9 @@
     <div class="patient">
         @if (_patientLoaded)
         {
-            <MudTextField T="@string" InputType="InputType.Text" Disabled FullWidth Label="Full Name" Value="@Patient.FullName" />
-            <MudTextField T="@string" InputType="InputType.Text" Disabled FullWidth Label="Gender" Value="@Patient.Gender" />
-            <MudTextField T="@string" InputType="InputType.Text" Disabled FullWidth Label="Other Information" Lines="5" Value="@Patient.OtherInformation" />
+            <MudTextField T="@string" InputType="InputType.Text" ReadOnly FullWidth Label="Full Name" Value="@Patient.FullName" />
+            <MudTextField T="@string" InputType="InputType.Text" ReadOnly FullWidth Label="Gender" Value="@Patient.Gender" />
+            <MudTextField T="@string" InputType="InputType.Text" ReadOnly FullWidth Label="Other Information" Lines="5" Value="@Patient.OtherInformation" />
 
             <br />
 
@@ -71,7 +71,7 @@
                 </MudCardContent>
             </MudCard>
 
-            <br/>
+            <br />
 
             <MudCard>
                 <MudCardHeader>

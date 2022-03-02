@@ -1,7 +1,62 @@
 ﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;300;400;500;700&display=swap');
 
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Poppins', Helvetica, Arial, sans-serif !important;
+}
+
+.app-container{
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+    padding: 3px;
+    height: calc(100vh - 69px);
+    margin-top: -12px;
+}
+
+.buttons{
+	display:flex;
+	flex-direction: row;
+	margin-top: 2px;
+	justify-content: space-between;
+	align-items: center;
+}
+
+/*.app-bg::before {
+    content: "";
+    background-image: url('../Hexagon.svg');
+    background-size: cover;
+    background-repeat: repeat-y;
+    opacity: 0.35;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+    height: 100vh;
+}
+
+.app-bg{
+    height: 100vh;
+}*/
+
+@media only screen and (min-width: 600px) {
+    .light-bg {
+        background-color: #f8f8ff;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    .container {
+        border: 0;
+        border-radius: 0;
+        box-shadow: initial;
+    }
+
+    .app-container{
+    height: calc(100vh - 61px);
+}
 }
 
 h1:focus {
