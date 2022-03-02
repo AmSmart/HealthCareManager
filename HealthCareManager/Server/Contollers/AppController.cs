@@ -144,6 +144,10 @@ namespace HealthCareManager.Server.Contollers
                 return Unauthorized();
 
             var patient = await _dbContext.GetPatientByIdAsync(patientId);
+
+            if(patient is null)
+                    return BadRequest("Patient Not Found");
+
             var prescription = patient.Prescriptions.First(x => x.Id == prescriptionId);
             prescription.Collected = true;
 

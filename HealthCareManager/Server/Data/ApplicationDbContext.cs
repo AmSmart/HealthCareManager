@@ -36,10 +36,10 @@ namespace HealthCareManager.Server.Data
             await SaveChangesAsync();
         }
 
-        public async Task<Patient> GetPatientByIdAsync(int id) 
-            => await Patients.FirstAsync(x => x.Id == id);
+        public async Task<Patient?> GetPatientByIdAsync(int id) 
+            => await Patients.FirstOrDefaultAsync(x => x.Id == id);
         
-        public async Task<Patient> GetPatientByRfidAsync(string rfid) 
-            => await Patients.FirstAsync(x => x.RfidTagId == rfid);
+        public async Task<Patient?> GetPatientByRfidAsync(string rfid) 
+            => await Patients.FirstOrDefaultAsync(x => x.RfidTagId == rfid);
     }
 }
