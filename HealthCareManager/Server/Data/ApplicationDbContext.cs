@@ -24,6 +24,10 @@ namespace HealthCareManager.Server.Data
 
         public async Task<Patient> CreatePatientAsync(Patient patient)
         {
+            bool patientExists = Patients.Any(x => x.RfidTagId == patient.RfidTagId);
+            if (patientExists)
+                throw new Exception();
+
             patient.Id = 0;
             await Patients.AddAsync(patient);
             await SaveChangesAsync();

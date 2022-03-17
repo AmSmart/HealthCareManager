@@ -115,16 +115,23 @@ namespace HealthCareManager.Server.Contollers
 
             if (userType is not UserType.Admin)
                 return Unauthorized();
-
-            await _dbContext.CreatePatientAsync(new Patient
+            try
             {
-                FullName = dto.FullName,
-                Gender = dto.Gender,
-                OtherInformation = dto.OtherInformation,
-                RfidTagId = dto.RfidTagId
-            });
+                await _dbContext.CreatePatientAsync(new Patient
+                {
+                    FullName = dto.FullName,
+                    Gender = dto.Gender,
+                    OtherInformation = dto.OtherInformation,
+                    RfidTagId = dto.RfidTagId
+                });
 
-            return Ok(AppResponse.Success("Patient Created Successfully"));
+                return Ok(AppResponse.Success("Patient Created Successfully"));
+            }
+            catch
+            {
+                return BadRequest(AppResponse.Error("Patient with RFID Tag already exists"));
+            }
+            
         }
 
         [HttpPut("patient")]
